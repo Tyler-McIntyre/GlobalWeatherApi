@@ -4,7 +4,7 @@
 GlobalWeatherApi is a .NET Core Web API that provides weather information based on longitude and latitude coordinates.
 Built on .NET 6.0, this API interacts with [Open Weather]("https://openweathermap.org/") to fetch current weather data.
 
-Prerequisites
+## Prerequisites
 Ensure you have .NET 6.0 SDK installed on your machine.
 
 ## Configuration
