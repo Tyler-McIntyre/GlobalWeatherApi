@@ -20,4 +20,4 @@ In the appsettings.json file of the solution, add your API key:
 ```
 
 ## Usage
-This project is equipped with OpenAPI (Swagger) for easy testing and interaction with the API through a user-friendly interface.
+This project is equipped with OpenAPI (Swagger) for easy testing.
