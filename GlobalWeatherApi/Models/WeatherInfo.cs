@@ -22,7 +22,7 @@
             }
             else if (tempKelvin >= 283 && tempKelvin <= 298)
             {
-                TemperatureClassification = "Warm";
+                TemperatureClassification = "Moderate";
             }
             else
             {
