@@ -1,7 +1,7 @@
 using GlobalWeatherApi.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using System.Net;
 
 namespace GlobalWeatherApi.Controllers
 {
@@ -11,11 +11,16 @@ namespace GlobalWeatherApi.Controllers
     {
         private readonly ILogger<WeatherController> _logger;
         private readonly WeatherApiSettings _weatherApiSettings;
+        private HttpClient _httpClient;
 
-        public WeatherController(WeatherApiSettings weatherApiSettings, ILogger<WeatherController> logger)
+        public WeatherController(
+            IOptions<WeatherApiSettings> weatherApiSettings,
+            ILogger<WeatherController> logger, 
+            IHttpClientFactory httpClientFactory)
         {
             _logger = logger;
-            _weatherApiSettings = weatherApiSettings;
+            _weatherApiSettings = weatherApiSettings.Value;
+            _httpClient = httpClientFactory.CreateClient("WeatherClient");
         }
 
         /// <summary>
@@ -28,19 +33,18 @@ namespace GlobalWeatherApi.Controllers
         /// <returns>General weather info</returns>
         /// <exception cref="Exception"></exception>
         [HttpGet(Name = "GetWeatherInfo")]
-        public async Task<ActionResult<WeatherInfo>> Get(float latitude = 35.7796f, float longitude = 78.6382f)
+        public async Task<ActionResult<WeatherInfo>> Get(WeatherInfoRequest req)
         {
-            _logger.LogInformation("Received weather request for Latitude: {Latitude}, Longitude: {Longitude}", latitude, longitude);
+            _logger.LogInformation("Received weather request for Latitude: {Latitude}, Longitude: {Longitude}", req.latitude, req.longitude);
 
             // Build request
-            string queryString = $"?lat={latitude}&lon={longitude}&appid={_weatherApiSettings.ApiKey}";
-            string url = _weatherApiSettings.BaseUrl + _weatherApiSettings.Endpoint + queryString;
+            string queryString = $"?lat={req.latitude}&lon={req.longitude}&appid={_weatherApiSettings.ApiKey}";
+            string url = _weatherApiSettings.Endpoint + queryString;
 
             try
             {
                 // Make request
-                HttpClient httpClient = new();
-                HttpResponseMessage response = await httpClient.GetAsync(url);
+                HttpResponseMessage response = await _httpClient.GetAsync(url);
                 response.EnsureSuccessStatusCode();
 
                 string responseContent = await response.Content.ReadAsStringAsync();
@@ -50,12 +54,13 @@ namespace GlobalWeatherApi.Controllers
                 if (weatherInfo is null) return StatusCode(500);
 
                 weatherInfo.ClassifyTemperature();
+
                 return weatherInfo;
             } 
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Internal Server Error");
-                throw;
+                return StatusCode(500);
             }
         }
     }

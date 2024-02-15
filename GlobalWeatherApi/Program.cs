@@ -10,8 +10,14 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Load Weather API Settings
-WeatherApiSettings weatherApiSettings = builder.Configuration.GetSection("WeatherApiSettings").Get<WeatherApiSettings>();
-builder.Services.AddSingleton(weatherApiSettings);
+IConfigurationSection configSection = builder.Configuration.GetSection("WeatherApiSettings");
+WeatherApiSettings weatherApiSettings = configSection.Get<WeatherApiSettings>();
+builder.Services.Configure<WeatherApiSettings>(configSection);
+
+builder.Services.AddHttpClient("WeatherClient", client =>
+{
+    client.BaseAddress = new Uri(weatherApiSettings.BaseUrl);
+});
 
 var app = builder.Build();
 

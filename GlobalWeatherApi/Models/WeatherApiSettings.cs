@@ -2,8 +2,8 @@
 {
     public class WeatherApiSettings
     {
-        public string ApiKey { get; set; }
-        public string BaseUrl { get; set; }
-        public string Endpoint { get; set; }
+        public string ApiKey = string.Empty;
+        public string BaseUrl = string.Empty;
+        public string Endpoint = string.Empty;
     }
 }
